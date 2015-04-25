@@ -141,16 +141,23 @@ begin
 				brake <= '1';
 				reset_timer <= '1';
 				
+				-- Decide next state
 				if (at_landing = '1')
 					state <= open_state;
 				end if;
 			when open_state =>
-				door_closed <='1';
+				-- Undo signal changes from idle_state, brake_state, close_state
+				brake <= '0';
+				reset_timer <= '0';
+				-- Set signals for this state
 				open_door <= '1';
 				remove_call <= '1';
-				if ((timer_door='0' or hold_button='1')and close_button='0')
-					then state <= open_state; -- open door
-				else state <= close_state; -- close door
+				
+				-- Decide next statea
+				if ((timer_door = '0' or hold_button = '1') and close_button = '0') then
+					state <= open_state; -- remain in current state
+				else 
+					state <= close_state;
 				end if;
 			when close_state => -- close door
 				open_door <= '0';
