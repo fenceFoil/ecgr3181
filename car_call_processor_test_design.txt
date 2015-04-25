@@ -19,12 +19,11 @@ Set pos to 4
 	* ca = 0
 	* cb = 1
 	* cat = 0
-
-Set pos to 2
+	
 Add car call at 2
-	* ca = 1
-	* cb = 0
-	* cat = 1
+	* ca = 0
+	* cb = 1
+	* cat = 0
 
 Set pos to 1
 	* ca = 1
