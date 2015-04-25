@@ -51,9 +51,9 @@ architecture behav of car_processor is
 	signal timer_accel, timer_door : std_logic := '0';
 	
 	-- state machine outputs not on the external port
-	signal reset_timer : std_logic := 0;
-	signal accel, hold, brake : std_logic := 0;
-	signal remove_call : std_logic := 0;
+	signal reset_timer 				: std_logic := 0;
+	signal accel, hold, brake 		: std_logic := 0;
+	signal remove_call 				: std_logic := 0;
 
 begin  
 	process (clk, fast_clk, reset)
@@ -153,24 +153,32 @@ begin
 				open_door <= '1';
 				remove_call <= '1';
 				
-				-- Decide next statea
+				-- Decide next state
 				if ((timer_door = '0' or hold_button = '1') and close_button = '0') then
 					state <= open_state; -- remain in current state
 				else 
 					state <= close_state;
 				end if;
-			when close_state => -- close door
+			when close_state =>
+				-- Undo signal changes from open_door
 				open_door <= '0';
-				if (door_closed='0')
-					then state <= close_state; -- close door
-				elsif (at_call='1' or hold_button='1' or open_button='1')
-					then state <= open_state; -- open door
-				elsif (((direction_up='1' and call_above='1') or (direction_down='1' and call_below='0')) and (call_above='1' or call_below='1'))
-					then state <= dir_up_state; -- set dir up
-				elsif (((direction_down='1' and call_below='1') or (direction_up='1' and call_above='0')) and (call_above='1' or call_below='1'))
-					then state <= dir_down_state;
-				elsif (call_above='0' and call_below='0')
-					then state <= idle_state;
+				remove_call <= '0';
+				-- Set signals for this state
+				-- n/a
+				
+				-- Decide next state
+				if (door_closed='0') then
+					state <= close_state; -- remain in current state
+				elsif (at_call = '1' or hold_button = '1' or open_button = '1') then
+					state <= open_state;
+				elsif (((dir_up = '1' and call_above = '1') or (dir_down = '1' and call_below = '0')) 
+					and (call_above = '1' or call_below = '1')) then
+					state <= dir_up_state;
+				elsif (((dir_down = '1' and call_below = '1') or (dir_up = '1' and call_above = '0')) 
+					and (call_above = '1' or call_below = '1')) then
+					state <= dir_down_state;
+				elsif (call_above = '0' and call_below = '0') then
+					state <= idle_state;
 				end if;
 			end case;  
 		end if;  
