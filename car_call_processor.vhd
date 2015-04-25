@@ -23,7 +23,7 @@ architecture behav of car_call_processor is
 		loop_landings_state, no_call_state, at_call_state, call_above_state, 
 		call_below_state, wait_rising_state);
 	signal state: state_type := wait_falling_state;
-	signal requests: std_logic_vector (NUM_LANDINGS downto 1);
+	signal requests: std_logic_vector (NUM_LANDINGS-1 downto 0);
 	signal call_above_temp, call_below_temp, call_at_pos_temp : std_logic := '0';
 	signal i : integer := 0;
 begin
