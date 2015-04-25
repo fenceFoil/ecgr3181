@@ -93,6 +93,9 @@ begin
 				reset_timer <= '0';
 				remove_call <= '0';
 				
+				dir_up <= '0';
+				dir_down <= '0';
+				
 				-- Decide next state
 				if (open_button = '1' or (new_call = '1' and at_call = '1')) then
 					state <= open_state;
@@ -141,7 +144,7 @@ begin
 				if (at_landing = '1')
 					state <= open_state;
 				end if;
-			when open_state => -- open door
+			when open_state =>
 				door_closed <='1';
 				open_door <= '1';
 				remove_call <= '1';
