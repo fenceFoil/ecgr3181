@@ -2,29 +2,36 @@ library IEEE;
 use IEEE.std_logic_1164.all; 
 use IEEE.std_logic_arith.all;
  
-entity car_processor is  
-  port ( clk  : IN std_logic;  
-      reset : in std_logic;
-      new_call : in std_logic;
-      at_call : in std_logic;
-     -- call_above : inout std_logic;
-     -- call_below : inout std_logic;
-     -- timer_accel : inout std_logic;
-     -- near_call : inout std_logic;
-      hold_button : in std_logic;
-      open_button : in std_logic;
-      close_button : in std_logic;
-     -- timer_door : inout std_logic;
-      direction_up : inout std_logic;
-      direction_down : inout std_logic;
-      
-      reset_timer : out std_logic;
-      accel : out std_logic;
-      hold : inout std_logic; -- means the elevator is moving vertically
-      remove_call : out std_logic);
-      
-    --  elevator_location : out integer;
-     -- start : in integer);
+entity car_processor is 
+	type motor_type is (stop, accel_up, hold_up, brake_up, accel_down, 
+		hold_down, brake_down);
+	port ( 
+		clk  			: in std_logic;
+		fast_clk 		: in std_logic;	-- used for the car_call_processor
+		reset 			: in std_logic;
+		hold_button 	: in std_logic;
+		open_button 	: in std_logic;
+		close_button 	: in std_logic;
+		door_closed		: in std_logic;
+		at_landing 		: in std_logic;
+		near_landing	: in std_logic;
+		pos_landing		: in integer;
+		new_landing_call: in std_logic;
+		landing_call	: in integer;
+		new_car_call	: in std_logic;
+		car_call		: in integer;
+		
+		open_door		: out std_logic;
+		motor			: out motor_type;
+		serviced_call	: out std_logic;
+		-- on some papers, these two are represented with a 2 bit number. 
+		-- Using two individual bits performs the same function; IDLE = both 0
+		--dir_up_out		: out std_logic; 
+		--dir_down_out	: out std_logic;
+		curr_landing	: out integer;
+		
+		direction_up 	: out std_logic;
+		direction_down 	: out std_logic);
       
 end entity;  
 
