@@ -121,22 +121,25 @@ begin
 				if (timer_accel = '1') then 
 					state <= hold_state;
 				end if;
-			when hold_state => -- hold
+			when hold_state =>
+				-- Undo signal changes from accel_state
+				accel <= '0';
+				-- Set signals for this state
 				hold <= '1';
-				if (near_call='0')
-					then state <= hold_state; -- hold
-				else 
-					state <= brake_state; -- brake
-					brake <= '1';
+				
+				-- Decide next state
+				if (near_call = '1') then
+					state <= brake_state;
 				end if;
-			when brake_state => -- brake
+			when brake_state =>
+				-- Undo signal changes from hold_state
 				hold <= '0';
+				-- Set signals for this state
 				brake <= '1';
 				reset_timer <= '1';
-				if (at_landing='0')
-					then state <= brake_state; -- brake
-				else
-					state <= open_state; -- open door
+				
+				if (at_landing = '1')
+					state <= open_state;
 				end if;
 			when open_state => -- open door
 				door_closed <='1';
