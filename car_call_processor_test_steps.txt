@@ -1,0 +1,43 @@
+reset new_car_call remove_call car_call pos_landing call_above call_below call_at_pos
+0 1 0 3 3 0 0 1 -- line 7
+0 0 0 0 2 1 0 0 -- line 13
+0 0 0 0 4 0 1 0 -- line 18
+0 1 0 2 4 0 1 0 -- line 23
+0 0 0 0 1 1 0 0 -- line 28
+0 0 0 0 2 1 0 1 -- line 33
+0 0 0 0 3 0 1 1 -- line 38
+0 0 0 0 4 0 1 0 -- line 43
+0 0 1 0 2 1 0 0 -- line 48
+0 0 1 0 3 0 0 0 -- line 54
+0 1 0 2 1 1 0 0 -- line 62
+0 1 0 3 1 1 0 0 -- line 68
+1 0 0 0 1 0 0 0 -- line 73
+
+		-- STEP $rowNumOne
+		-- Set up inputs
+		reset <= '$0';
+		new_car_call <= '$1';
+		remove_call <= '$2';
+		car_call <= $3;
+		pos_landing <= $4;
+		-- Lower car clock, triggering car call processor
+		car_clk <= 0;	
+		-- Wait for processing to finish
+		wait for 100 ns;
+		-- Check outputs
+		ASSERT (call_above = '$5')
+			REPORT "Output of call_above incorrect at step $rowNumOne"
+			SEVERITY NOTE;
+		ASSERT (call_below = '$6')
+			REPORT "Output of call_below incorrect at step $rowNumOne"
+			SEVERITY NOTE;
+		ASSERT (call_at_pos = '$7')
+			REPORT "Output of call_at_pos incorrect at step $rowNumOne"
+			SEVERITY NOTE;
+		-- Raise car clock again
+		car_clk <= 1;
+		-- Wait before lowering car clock and testing next step
+		wait for 100 ns;
+		-- END OF STEP $rowNumOne
+		
+		
