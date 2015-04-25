@@ -41,8 +41,6 @@ architecture behav of car_processor is
 	type state_type is (state_idle, dir_up_state, dir_down_state, accel_state, 
 		hold_state, brake_state, open_state, close_state);  
 	signal state: state_type;  
-	signal request_floor : integer range 0 to 100;
-	signal floor_sensors : integer range 0 to 300;
 	signal timer_accel, timer_door, call_above, call_below, near_call, at_landing, brake, open_door, door_closed : std_logic:='0';-- stopping/starting movement signals to output to corresponding ports
 	
 begin  
@@ -69,13 +67,13 @@ begin
       door_closed <= '1';
     end if;
     
-    -- sensors
-    if (clk='1' and clk'event and direction_up='1' and brake='0')
-      then floor_sensors <= floor_sensors + 1;
-    end if;
-    if (clk='1' and clk'event and direction_down='1' and brake='0')
-      then floor_sensors <= floor_sensors - 1;
-    end if;
+    -- -- sensors
+    -- if (clk='1' and clk'event and direction_up='1' and brake='0')
+      -- then floor_sensors <= floor_sensors + 1;
+    -- end if;
+    -- if (clk='1' and clk'event and direction_down='1' and brake='0')
+      -- then floor_sensors <= floor_sensors - 1;
+    -- end if;
     
     -- call conditions for stopping/starting movement to destination 
     -- if (clk='1' and clk'event and new_call = '1' and location > request_floor - 1)
