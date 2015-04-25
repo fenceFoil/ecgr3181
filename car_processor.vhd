@@ -38,10 +38,10 @@ end entity;
 
 
 architecture behav of car_processor is 
-	type state_type is (state_idle, dir_up_state, dir_down_state, accel_state, 
+	type state_type is (idle_state, dir_up_state, dir_down_state, accel_state, 
 		hold_state, brake_state, open_state, close_state);  
 
-	signal state: state_type := state_idle; 
+	signal state: state_type := idle_state; 
 	
 	-- state machine inputs not on the external port
 	signal near_call, at_call, new_call, call_above, call_below : std_logic := '0';
@@ -66,26 +66,35 @@ begin
 
 		-- FSM Implementation
 		if (reset = '1') then  
-			state <= state_idle;
+			state <= idle_state;
+			
+			-- reset FSM outputs to zero
+			open_door <= '0';
+			brake <= '0';
+			hold <= '0';
+			accel <= '0';
+			reset_timer <= '0';
+			remove_call <= '0';
 		elsif (clk = '1' and clk'event) then  
 			case state is  
-			when state_idle => -- idle
-				reset_timer <= '0';
-				accel <= '0';
-				hold <= '0';
-				brake <= '1';
+			when idle_state =>
+				-- Thoroughly reset all FSM outputs in this idle state
 				open_door <= '0';
+				brake <= '0';
+				hold <= '0';
+				accel <= '0';
+				reset_timer <= '0';
 				remove_call <= '0';
-				direction_up <= '0';
-				direction_down <= '0';
-				if (new_call='1' and at_call='0' and call_above='1')
-					then state <= dir_up_state;  -- set dir up
-				elsif (new_call='1' and at_call='0' and call_below='1')
-					then state <= dir_down_state; -- set dir down
-				elsif ((new_call='1' and at_call='1') or open_button='1')
-					then state <= open_state; -- open door  
-				end if;  
-			when dir_up_state =>  -- set dir up
+				
+				-- Decide next state
+				if (open_button = '1' or (new_call = '1' and at_call = '1')) then
+					state <= open_state;
+				elsif (new_call = '1' and at_call = '0' and call_above) then
+					state <= dir_up_state;
+				elsif (new_call = '1' and at_call = '0' and call_below) then
+					state <= dir_down_state;
+				end if;
+			when dir_up_state =>
 				direction_up <= '1'; 
 				reset_timer <= '1';
 				state <= accel_state; -- accel
@@ -141,7 +150,7 @@ begin
 				elsif (((direction_down='1' and call_below='1') or (direction_up='1' and call_above='0')) and (call_above='1' or call_below='1'))
 					then state <= dir_down_state;
 				elsif (call_above='0' and call_below='0')
-					then state <= state_idle;
+					then state <= idle_state;
 				end if;
 			end case;  
 		end if;  
