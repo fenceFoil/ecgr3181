@@ -97,13 +97,13 @@ begin
 			when dir_up_state =>
 				direction_up <= '1'; 
 				reset_timer <= '1';
-				state <= accel_state; -- accel
-				timer_accel <='0';
-			when dir_down_state =>  -- set dir down
+				
+				state <= accel_state;
+			when dir_down_state =>
 				direction_down <= '1'; 
 				reset_timer <= '1';
-				state <= accel_state; -- accel
-				timer_accel <='0';
+				
+				state <= accel_state;
 			when accel_state =>  -- accel
 				brake <= '0';
 				accel <= '1';
