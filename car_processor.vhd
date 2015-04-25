@@ -43,6 +43,9 @@ architecture behav of car_processor is
 
 	signal state: state_type := idle_state; 
 	
+	-- direction registers
+	signal dir_up, dir_down := '0';
+	
 	-- state machine inputs not on the external port
 	signal near_call, at_call, new_call, call_above, call_below : std_logic := '0';
 	signal timer_accel, timer_door : std_logic := '0';
@@ -75,6 +78,10 @@ begin
 			accel <= '0';
 			reset_timer <= '0';
 			remove_call <= '0';
+			
+			-- reset registers on reset
+			dir_up <= '0';
+			dir_down <= '0';
 		elsif (clk = '1' and clk'event) then  
 			case state is  
 			when idle_state =>
@@ -95,19 +102,18 @@ begin
 					state <= dir_down_state;
 				end if;
 			when dir_up_state =>
-				direction_up <= '1'; 
+				dir_up <= '1'; 
 				reset_timer <= '1';
 				
 				state <= accel_state;
 			when dir_down_state =>
-				direction_down <= '1'; 
+				dir_down <= '1'; 
 				reset_timer <= '1';
 				
 				state <= accel_state;
-			when accel_state =>  -- accel
-				brake <= '0';
+			when accel_state =>
 				accel <= '1';
-				at_landing <= '0';
+				
 				if (timer_accel <='0')
 					then state <= accel_state; -- accel
 				else
