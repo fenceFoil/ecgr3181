@@ -1,0 +1,56 @@
+Test Design: Car Call Processor
+
+After each change of inputs, lower car_clk, clock clk 100 times, and raise_car_clk
+
+***
+
+Set pos to 3
+Add car call at 3
+	* ca = 0
+	* cb = 0
+	* cat = 1
+	
+Set pos to 2
+	* ca = 1
+	* cb = 0
+	* cat = 0
+	
+Set pos to 4
+	* ca = 0
+	* cb = 1
+	* cat = 0
+
+Set pos to 2
+Add car call at 2
+
+Set pos to 1
+	* ca = 1
+	* cb = 0
+	* cat = 0
+	
+Set pos to 2
+	* ca = 1
+	* cb = 0
+	* cat = 1
+	
+Set pos to 3
+	* ca = 0
+	* cb = 1
+	* cat = 1
+	
+Set pos to 4
+	* ca = 0
+	* cb = 1
+	* cat = 0
+
+Set pos to 2
+Remove car call at 2
+	* ca = 1
+	* cb = 0
+	* cat = 0
+	
+Set pos to 3
+Remove car call at 3
+	* ca = 0
+	* cb = 0
+	* cat = 0
