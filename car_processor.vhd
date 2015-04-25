@@ -112,13 +112,14 @@ begin
 				
 				state <= accel_state;
 			when accel_state =>
+				-- Undo signal changes from dir_???_state
+				reset_timer <= '0';
+				-- Set signals for this state
 				accel <= '1';
 				
-				if (timer_accel <='0')
-					then state <= accel_state; -- accel
-				else
-					state <= hold_state; -- hold
-					accel <= '0';
+				-- Decide next state
+				if (timer_accel = '1') then 
+					state <= hold_state;
 				end if;
 			when hold_state => -- hold
 				hold <= '1';
