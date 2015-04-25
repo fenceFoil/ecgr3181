@@ -15,7 +15,7 @@ entity group_controller is
          floor_elevator_2 : in integer;
         
          send : out std_logic;
-         elevator_number : out integer; -- the number of the elevator to send the request to
+         send_elevator : out integer; -- the number of the elevator to send the request to
          send_floor : out integer);
 end entity;  
 
@@ -27,16 +27,59 @@ architecture behav of group_controller is
   signal state: state_type;
   signal reset_d_count, load_distance, timer, reset_c_count, ld_lowest : std_logic;
   signal d_count, distance, lowest, c_count, count : integer range 0 to 100;
-  
+  signal elevator_1_location, elevator_2_location, request_location, distance_1, distance_2 : integer range 0 to 100;
 begin  
   
+
+
+
+
+  datapath : process (clk)
+  begin
+
+  elevator_1_location <= floor_elevator_1;
+  elevator_2_location <= floor_elevator_2;
+  request_location <= request_floor;
+  
+ 
+  if (request_direction = '1') then
+      request_location <= -1*request_location;
+  end if;
+  
+   -- for each elevator, calculate distance. algorithm from datapath
+  if (direction_elevator_1 = '0') then -- not up
+      elevator_1_location <= -1*elevator_1_location;
+  end if;
+  distance_1 <= request_location - elevator_1_location;
+
+  if (direction_elevator_2 = '0') then -- not up
+      elevator_2_location <= -1*elevator_2_location;
+  end if;
+  distance_2 <= request_location - elevator_2_location;
+
+
+  -- compare distances
+  lowest <= distance_1;
+  send_elevator <= 1;
+  if (distance_2 < lowest)
+      then lowest <= distance_2;
+      send_elevator <= 2;
+  end if;
+  send_floor <= request_floor;
+  
+  -- send request
+  send <= '1';
+
+  end process;
   
   
-  process (clk)
+  
+  
+  
+  
+  state_machine : process (clk)
   
   begin  
-    
-  
 
     if (clk='1' and clk'event) then  
       case state is  
