@@ -31,6 +31,7 @@ begin
 	begin
 		if (reset = '1') then
 			state <= wait_falling_state;
+			requests <= (others => '0');
 		else -- not a reset
 			if (clk = '1' and clk'event) then
 				-- calculate new state
