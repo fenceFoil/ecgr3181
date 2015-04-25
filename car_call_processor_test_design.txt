@@ -57,11 +57,18 @@ Remove car call at 3
 	* cb = 0
 	* cat = 0
 	
-Set pos to 2
+-- test resetting
+	
+Set pos to 1
 Add car call at 2
+	* ca = 1
+	* cb = 0
+	* cat = 0
 
-Set pos to 3
 Add car call at 3
+	* ca = 1
+	* cb = 0
+	* cat = 0
 
 Set reset to 1
 	* ca = 0
