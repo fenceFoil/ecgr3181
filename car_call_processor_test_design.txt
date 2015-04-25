@@ -54,3 +54,14 @@ Remove car call at 3
 	* ca = 0
 	* cb = 0
 	* cat = 0
+	
+Set pos to 2
+Add car call at 2
+
+Set pos to 3
+Add car call at 3
+
+Set reset to 1
+	* ca = 0
+	* cb = 0
+	* cat = 0
