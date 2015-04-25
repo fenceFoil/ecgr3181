@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all; 
 use IEEE.std_logic_arith.all;
  
-entity elevator_controller is  
+entity car_processor is  
   port ( clk  : IN std_logic;  
       reset : in std_logic;
       new_call : in std_logic;
@@ -31,7 +31,7 @@ end entity;
 
 
 
-architecture behav of elevator_controller is 
+architecture behav of car_processor is 
   type state_type is (s0,s1,s2,s3,s4,s5,s6,s7);  
   signal state: state_type;  
   signal location : integer range 0 to 200;
