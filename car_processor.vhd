@@ -32,19 +32,20 @@ entity car_processor is
 		
 		direction_up 	: out std_logic;
 		direction_down 	: out std_logic);
-      
 end entity;  
 
 
 
 
 architecture behav of car_processor is 
-  type state_type is (s0,s1,s2,s3,s4,s5,s6,s7);  
-  signal state: state_type;  
-  signal location : integer range 0 to 200;
-  signal request_floor : integer range 0 to 100;
-  signal floor_sensors : integer range 0 to 300;
-  signal timer_accel, timer_door, call_above, call_below, near_call, at_landing, brake, open_door, door_closed : std_logic:='0';-- stopping/starting movement signals to output to corresponding ports
+	type state_type is (state_idle, dir_up_state, dir_down_state, accel_state, 
+		hold_state, brake_state, open_state, close_state);  
+	signal state: state_type;  
+	signal location : integer range 0 to 200;
+	signal request_floor : integer range 0 to 100;
+	signal floor_sensors : integer range 0 to 300;
+	signal timer_accel, timer_door, call_above, call_below, near_call, at_landing, brake, open_door, door_closed : std_logic:='0';-- stopping/starting movement signals to output to corresponding ports
+	
 begin  
   
   
@@ -101,10 +102,10 @@ begin
  
     
     if (reset ='1') then  
-      state <=s0;
+      state <=state_idle;
     elsif (clk='1' and clk'event) then  
       case state is  
-        when s0 => -- idle
+        when state_idle => -- idle
                    reset_timer <= '0';
                    accel <= '0';
                    hold <= '0';
@@ -114,69 +115,69 @@ begin
                    direction_up <= '0';
                    direction_down <= '0';
                    if (new_call='1' and at_call='0' and call_above='1')
-                     then state <= s1;  -- set dir up
+                     then state <= dir_up_state;  -- set dir up
                    elsif (new_call='1' and at_call='0' and call_below='1')
-                     then state <= s2; -- set dir down
+                     then state <= dir_down_state; -- set dir down
                    elsif ((new_call='1' and at_call='1') or open_button='1')
-                     then state <= s6; -- open door  
+                     then state <= open_state; -- open door  
                    end if;  
-        when s1 =>  -- set dir up
+        when dir_up_state =>  -- set dir up
                    direction_up <= '1'; 
                    reset_timer <= '1';
-                   state <= s3; -- accel
+                   state <= accel_state; -- accel
                    timer_accel <='0';
-        when s2 =>  -- set dir down
+        when dir_down_state =>  -- set dir down
                    direction_down <= '1'; 
                    reset_timer <= '1';
-                   state <= s3; -- accel
+                   state <= accel_state; -- accel
                    timer_accel <='0';
-        when s3 =>  -- accel
+        when accel_state =>  -- accel
                    brake <= '0';
                    accel <= '1';
                    at_landing <= '0';
                    if (timer_accel <='0')
-                     then state <= s3; -- accel
+                     then state <= accel_state; -- accel
                    else
-                     state <= s4; -- hold
+                     state <= hold_state; -- hold
                      accel <= '0';
                    end if;
-        when s4 => -- hold
+        when hold_state => -- hold
                    hold <= '1';
                    if (near_call='0')
-                     then state <= s4; -- hold
+                     then state <= hold_state; -- hold
                    else 
-                     state <= s5; -- brake
+                     state <= brake_state; -- brake
                      brake <= '1';
                    end if;
-        when s5 => -- brake
+        when brake_state => -- brake
                    hold <= '0';
                    brake <= '1';
                    reset_timer <= '1';
                    if (at_landing='0')
-                     then state <= s5; -- brake
-                   else state <= s6; -- open door
+                     then state <= brake_state; -- brake
+                   else state <= open_state; -- open door
                    end if;
-        when s6 => -- open door
+        when open_state => -- open door
                    door_closed <='1';
                    open_door <= '1';
                    remove_call <= '1';
                    if ((timer_door='0' or hold_button='1')and close_button='0')
-                     then state <= s6; -- open door
-                   else state <= s7; -- close door
+                     then state <= open_state; -- open door
+                   else state <= close_state; -- close door
                    end if;
-        when s7 => -- close door
+        when close_state => -- close door
                     
                    open_door <= '0';
                    if (door_closed='0')
-                     then state <= s7; -- close door
+                     then state <= close_state; -- close door
                    elsif (at_call='1' or hold_button='1' or open_button='1')
-                     then state <= s6; -- open door
+                     then state <= open_state; -- open door
                    elsif (((direction_up='1' and call_above='1') or (direction_down='1' and call_below='0')) and (call_above='1' or call_below='1'))
-                     then state <= s1; -- set dir up
+                     then state <= dir_up_state; -- set dir up
                    elsif (((direction_down='1' and call_below='1') or (direction_up='1' and call_above='0')) and (call_above='1' or call_below='1'))
-                     then state <= s2;
+                     then state <= dir_down_state;
                    elsif (call_above='0' and call_below='0')
-                     then state <= s0;
+                     then state <= state_idle;
                    end if;
       end case;  
     end if;  
