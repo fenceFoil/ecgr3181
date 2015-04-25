@@ -41,7 +41,6 @@ architecture behav of car_processor is
 	type state_type is (state_idle, dir_up_state, dir_down_state, accel_state, 
 		hold_state, brake_state, open_state, close_state);  
 	signal state: state_type;  
-	signal location : integer range 0 to 200;
 	signal request_floor : integer range 0 to 100;
 	signal floor_sensors : integer range 0 to 300;
 	signal timer_accel, timer_door, call_above, call_below, near_call, at_landing, brake, open_door, door_closed : std_logic:='0';-- stopping/starting movement signals to output to corresponding ports
@@ -50,7 +49,7 @@ begin
   
   
   
-  process (clk,reset)
+  process (clk, fast_clk, reset)
   
   begin  
     
@@ -70,16 +69,6 @@ begin
       door_closed <= '1';
     end if;
     
-    
-    
-    -- moving the elevator
-    if (clk='1' and clk'event and direction_up='1' and hold='1' and (floor_sensors mod 2 = 0) and brake='0')
-      then location <= location+1;
-    elsif(clk='1' and clk'event and direction_down='1' and hold='1' and (floor_sensors mod 2 = 0) and brake='0')
-      then location <= location-1;
-    end if;
-    
-    
     -- sensors
     if (clk='1' and clk'event and direction_up='1' and brake='0')
       then floor_sensors <= floor_sensors + 1;
@@ -88,17 +77,17 @@ begin
       then floor_sensors <= floor_sensors - 1;
     end if;
     
-     -- call conditions for stopping/starting movement to destination 
-    if (clk='1' and clk'event and new_call = '1' and location > request_floor - 1)
-      then call_below <= '1';
-    elsif (clk='1' and clk'event and new_call = '1' and location = request_floor - 1)
-      then near_call <= '1';
-      if (floor_sensors mod 2 = 0)
-        then at_landing <= '1';
-      end if;
-    elsif (clk='1' and clk'event and new_call = '1' and location < request_floor - 1)
-      then call_above <= '1';
-    end if;
+    -- call conditions for stopping/starting movement to destination 
+    -- if (clk='1' and clk'event and new_call = '1' and location > request_floor - 1)
+      -- then call_below <= '1';
+    -- elsif (clk='1' and clk'event and new_call = '1' and location = request_floor - 1)
+      -- then near_call <= '1';
+      -- if (floor_sensors mod 2 = 0)
+        -- then at_landing <= '1';
+      -- end if;
+    -- elsif (clk='1' and clk'event and new_call = '1' and location < request_floor - 1)
+      -- then call_above <= '1';
+    -- end if;
  
     
     if (reset ='1') then  
