@@ -2,9 +2,9 @@ library IEEE;
 use IEEE.std_logic_1164.all; 
 use IEEE.std_logic_arith.all;
  
+--type motor_type is (stop, accel_up, hold_up, brake_up, accel_down, hold_down, brake_down);
+ 
 entity car_processor is 
-	type motor_type is (stop, accel_up, hold_up, brake_up, accel_down, 
-		hold_down, brake_down);
 	port ( 
 		clk  			: in std_logic;
 		fast_clk 		: in std_logic;	-- used for the car_call_processor
@@ -22,7 +22,7 @@ entity car_processor is
 		car_call		: in integer;
 		
 		open_door		: out std_logic;
-		motor			: out motor_type;
+		motor			: out integer;
 		serviced_call	: out std_logic;
 		-- on some papers, these two are represented with a 2 bit number. 
 		-- Using two individual bits performs the same function; IDLE = both 0
@@ -39,33 +39,33 @@ end entity;
 
 architecture behav of car_processor is 
 	type state_type is (idle_state, dir_up_state, dir_down_state, accel_state, 
-		hold_state, brake_state, open_state, close_state);  
+		hold_state, brake_state, open_state, close_state);
 
-	signal state: state_type := idle_state; 
+	signal state : state_type := idle_state; 
 	
 	-- direction registers
-	signal dir_up, dir_down := '0';
+	signal dir_up, dir_down : std_logic := '0';
 	
 	-- state machine inputs not on the external port
 	signal near_call, at_call, new_call, call_above, call_below : std_logic := '0';
 	signal timer_accel, timer_door : std_logic := '0';
 	
 	-- state machine outputs not on the external port
-	signal reset_timer 				: std_logic := 0;
-	signal accel, hold, brake 		: std_logic := 0;
-	signal remove_call 				: std_logic := 0;
+	signal reset_timer 				: std_logic := '0';
+	signal accel, hold, brake 		: std_logic := '0';
+	signal remove_call 				: std_logic := '0';
 
 begin  
 	process (clk, fast_clk, reset)
 	begin  
-		-- timers
-		if (clk = '1' and clk'event and timer_accel = '0')
-			then timer_accel <= '1';
-		end if;
-		if (clk = '1' and clk'event and timer_door = '0')
-			then timer_door <= '1';
-			door_closed <= '1';
-		end if;
+		-- -- timers
+		-- if (clk = '1' and clk'event and timer_accel = '0')
+			-- then timer_accel <= '1';
+		-- end if;
+		-- if (clk = '1' and clk'event and timer_door = '0')
+			-- then timer_door <= '1';
+			-- door_closed <= '1';
+		-- end if;
 
 		-- FSM Implementation
 		if (reset = '1') then  
@@ -99,9 +99,9 @@ begin
 				-- Decide next state
 				if (open_button = '1' or (new_call = '1' and at_call = '1')) then
 					state <= open_state;
-				elsif (new_call = '1' and at_call = '0' and call_above) then
+				elsif (new_call = '1' and at_call = '0' and call_above = '1') then
 					state <= dir_up_state;
-				elsif (new_call = '1' and at_call = '0' and call_below) then
+				elsif (new_call = '1' and at_call = '0' and call_below = '1') then
 					state <= dir_down_state;
 				end if;
 			when dir_up_state =>
@@ -142,7 +142,7 @@ begin
 				reset_timer <= '1';
 				
 				-- Decide next state
-				if (at_landing = '1')
+				if (at_landing = '1') then
 					state <= open_state;
 				end if;
 			when open_state =>
