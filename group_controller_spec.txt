@@ -34,8 +34,10 @@ Group Controller Spec
 	For each car:
 	
 		landing_call (integer)
-			* if zero, indicates that there is no landing call assigned to this car. 
-			* If a landing call is assigned to this car, this input must be held at the landing integer until the call is serviced
+			* If there is a landing call assigned to this car:
+				* This must equal the landing number of the call
+			* If there is no landing call assigned to this car, or the last call has been serviced without a replacement:
+				* This must equal 0
 			
 		new_landing_call (std_logic)
 			* std_logic
