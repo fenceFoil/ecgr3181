@@ -1,0 +1,49 @@
+Group Controller Spec
+
+(Design assuming 2 elevator cars)
+
+* Inputs
+
+	For each car:
+		
+		dir_up 
+			* bit, std_logic
+			* 1 when car is moving up, zero when down or idle
+		dir_down
+			* bit, std_logic
+			* 1 when moving down, zero when up or idle
+		position
+			* integer
+			* the current position of the car
+		call_serviced
+			* bit, std_logic
+			* raised for one cycle when the assigned landing call has been serviced
+		
+	landing_call
+		* integer
+		* the landing integer of the call button pressed, or zero when none is being pressed
+		
+	up_call
+		* bit, std_logic
+		* raised for one cycle when a up landing call button is pressed
+		
+	down_call
+		* bit, std_logic
+		* raised for one cycle when a down landing call button is pressed
+
+* Outputs
+
+	For each car:
+	
+		landing_call
+			* integer
+			* if zero, indicates that there is no landing call assigned to this car. 
+			* If a landing call is assigned to this car, this input must be held at the landing integer until the call is serviced
+			
+		new_landing_call
+			* bit, std_logic
+			* raised for one cycle when a new landing call is assigned
+
+* Behavior
+
+	
