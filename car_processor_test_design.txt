@@ -1,0 +1,157 @@
+Summary:
+
+Make a few car calls and one landing call, make sure they are serviced in a sensible order. Assume 4 floors, and of course one car.
+
+Starting at the bottom of the shaft, make car calls at floors 2 and 4, and a landing call at floor 3. Car should stop at floors 2, 3, and 4, then not move. After that, make a landing call at floor 2. Car should move to 2 and stop, then not move.
+
+This tests upward and downward movement, ability to service car calls, ability to service landing calls, and allows opportunities to demonstrate the ability to operate the motor and doors. These detailed tests on the motor, doors, etc. will be performed on the first call, then the rest of the calls will only be analyzed to make sure the elevator services calls in the right order.
+
+REMOVED: NOBODY ACTUALLY CARES: On the second stop, the hold door button, the open door button, and the close door button will be tested.
+
+CHOICE: Not testing the delay for a door to close: doors close instantly. Also not testing the time for holding the doors open: the close button is held down continuously, just like when Dr. Mukherjee rides the elevators.
+
+*** Test Rig ***
+
+A test of the car processor will require certain inputs and outputs to behave in predictable ways. Mock doors, a Mock Group Traffic Processor, and Mock motor/position sensors will be implemented in VHDL for this test. They will not be exact simulations of a real elevator's environment, but be timed to make tests legible on a simulation waveform with predictable timing.
+
+Mock Doors:
+	Inputs:
+		open_door (bit)
+	Outputs:
+		door_closed (bit)
+	Behavior:
+		Optional:
+			* NO When open_door is raised, door_closed is set to 0. When open door is lowered, door_closed is set to 1 after a 3 cycle delay. 
+			OR
+			* YES (door_closed = not open_door) instantly
+		
+Mock Group Traffic Processor:
+	Inputs:
+			FROM TESTBENCH: force_landing_call (integer)
+		serviced_call (bit)
+	Outputs:
+		landing_call (integer)
+		new_landing_call (bit)
+	Behavior:
+		When force_landing_call changes, landing call is set to its value, and new_landing_call is pulsed. When serviced_call is raised, landing_call is set to 0.
+
+Mock Motor and Position Sensors:
+	Inputs:
+		motor (integer)
+	Outputs:
+		pos_landing (integer)
+		at_landing (bit)
+		near_landing (bit)
+	Behavior:
+		Follows this sequence, for a given up/down motor direction:
+			When accel
+				at_landing = 0
+				near_landing = 0
+			When hold
+				pos_landing CHANGES BY 1
+				at_landing = 0
+				near_landing = 1
+			When brake 
+				at_landing = 1
+				near_landing = 0
+			When stopped
+				at_landing = 1
+				near_landing = 0
+				
+NOT Mocked Inputs and Outputs:
+	Inputs:
+		reset
+		hold_btn 
+		close_btn (held at 1)
+		open_btn
+		
+		new_car_call
+		car_call
+		
+	Outputs:
+		direction_out
+		curr_landing
+	
+
+**** Steps ****
+
+Clocks will be 100 ns and 1 ns for fast and slow clock.
+Inputs will be given 50 ns leading the slow clock, and outputs will be checked 50 ns lagging the slow clock.
+
+Setup:
+Start on first floor 
+
+****
+
+Register landing call floor 3
+Register car call floor 2
+	* Elevator sets direction up
+
+Register car call floor 4
+	* Elevator accelerates up
+	
+* Elevator holds up
+
+* Elevator brakes up
+
+* Elevator opens doors
+
+* Elevator closes doors
+* Curr pos must be 2
+
+* Elevator sets direction up
+
+* Elevator accelerates up
+
+* Elevator holds up
+
+* Elevator brakes up
+
+* Elevator services landing call
+* Elevator opens doors
+
+-- Put a landing call below the elevator, while it is heading upwards
+-- Must not service until it has finished going up to 4th floor car call
+Register landing call at 2
+* Elevator closes doors
+* Curr pos must be 3
+
+* Elevator sets direction up
+
+* Elevator accelerates up
+
+* Elevator holds up
+
+* Elevator brakes up
+
+* Elevator opens doors
+
+* Elevator closes doors
+* Curr pos must be 4
+
+* Elevator closes doors
+
+* Elevator sets directions down
+
+* Elevator accelerates down
+
+-- Go down TWO floors, not just one
+* Elevator holds down
+
+* Elevator holds down
+
+* Elevator brakes down
+
+* Elevator services landing call
+* Elevator opens doors
+
+* Elevator closes doors
+* Curr pos must be 2
+
+-- No calls left
+* Elevator sets direction IDLE
+* Elevator does nothing else
+
+After a delay of 100 cycles...
+
+* Elevator still doing nothing
