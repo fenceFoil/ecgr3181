@@ -1,6 +1,21 @@
 library IEEE;  
 use IEEE.std_logic_1164.all; 
 use IEEE.std_logic_arith.all;
+
+-- entity car_call_processor is
+	-- port (
+		-- car_clk : IN std_logic;
+		-- clk : IN std_logic;
+		-- reset : IN std_logic; 				-- used?
+		-- new_car_call : IN std_logic; 
+		-- remove_call : IN std_logic;
+		-- car_call : IN integer;
+		-- pos_landing : IN integer;
+		
+		-- call_above : OUT std_logic;
+		-- call_below : OUT std_logic;
+		-- call_at_pos: OUT std_logic);
+-- end entity car_call_processor; 
  
 --type motor_type is (stop, accel_up, hold_up, brake_up, accel_down, hold_down, brake_down);
 
@@ -36,9 +51,10 @@ entity car_processor is
 		
 		direction_up 	: out std_logic;
 		direction_down 	: out std_logic);
-end entity;  
+end entity car_processor;  
 
 architecture behav of car_processor is 
+
 	type state_type is (idle_state, dir_up_state, dir_down_state, accel_state, 
 		hold_state, brake_state, open_state, close_state);
 
@@ -58,8 +74,26 @@ architecture behav of car_processor is
 	
 	-- timer counter
 	signal timer_counter			: integer := 0;
-
+	
+	-- car call processor connections
+	signal ca, cb, cat_pos			: std_logic := '0';
+	
 begin  
+	-- car call processor
+	ccp : car_call_processor PORT MAP (
+		clk => car_clk,
+		fast_clk => clk,
+		reset => reset,
+		new_landing_call => new_landing_call,
+		remove_call => remove_call,
+		car_call => car_call,
+		pos_landing => pos_landing,
+		
+		call_above => ca,
+		call_below => cb,
+		call_at_pos => cat_pos
+	);
+	
 	process (clk, fast_clk, reset)
 	begin  
 		-- Datapath Implementation
