@@ -1,27 +1,13 @@
 library IEEE;  
 use IEEE.std_logic_1164.all; 
 use IEEE.std_logic_arith.all;
-
--- entity car_call_processor is
-	-- port (
-		-- car_clk : IN std_logic;
-		-- clk : IN std_logic;
-		-- reset : IN std_logic; 				-- used?
-		-- new_car_call : IN std_logic; 
-		-- remove_call : IN std_logic;
-		-- car_call : IN integer;
-		-- pos_landing : IN integer;
-		
-		-- call_above : OUT std_logic;
-		-- call_below : OUT std_logic;
-		-- call_at_pos: OUT std_logic);
--- end entity car_call_processor; 
  
 --type motor_type is (stop, accel_up, hold_up, brake_up, accel_down, hold_down, brake_down);
 
 -- note: clock is assumed to have a period of 100 ns, freq = 10 mhz
 -- fast_clock is assumed to have a period of 1 ns, freq = 1 ghz
 -- Not realistic, but look good on the default waveform zoon
+-- These assumptions are used for the acceleration and door timers
  
 entity car_processor is 
 	port ( 
@@ -79,12 +65,12 @@ architecture behav of car_processor is
 	signal ca, cb, cat_pos			: std_logic := '0';
 	
 begin  
-	-- car call processor
-	ccp : car_call_processor PORT MAP (
-		clk => car_clk,
-		fast_clk => clk,
+	-- Car Call Processor
+	ccp : entity work.car_call_processor(basic) PORT MAP (
+		car_clk => clk,
+		clk => fast_clk,
 		reset => reset,
-		new_landing_call => new_landing_call,
+		new_car_call => new_car_call,
 		remove_call => remove_call,
 		car_call => car_call,
 		pos_landing => pos_landing,
@@ -149,7 +135,42 @@ begin
 				end if;
 			end if;
 			
-			
+			-- From papers: Landing Call Logic
+			-- Inputs: ca, cb, cat_pos, at_landing, near_landing, landing_call, remove_call, pos_landing
+			-- Outputs: call_above, call_below, near_call, at_call, serviced_call
+			if ((landing_call > pos_landing and landing_call /= 0) or ca = '1') then
+				call_above <= '1';
+			else
+				call_above <= '0';
+			end if;
+			if ((landing_call < pos_landing and landing_call /= 0) or cb = '1') then
+				call_below <= '1';
+			else
+				call_below <= '0';
+			end if;
+			if ((landing_call = pos_landing and landing_call /= 0) or cat_pos = '1') then
+				if (remove_call = '1') then
+					serviced_call <= '1';
+				else 
+					serviced_call <= '0';
+				end if;
+				
+				if (at_landing = '1') then
+					at_call <= '1';
+				else 
+					at_call <= '0';
+				end if;
+				
+				if (near_landing = '1') then
+					near_call <= '1';
+				else
+					near_call <= '0';
+				end if;
+			else
+				near_call <= '0';
+				at_call <= '0';
+				serviced_call <= '0';
+			end if;
 		end if;
 
 		-- FSM Implementation
