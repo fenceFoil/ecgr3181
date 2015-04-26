@@ -3,6 +3,10 @@ use IEEE.std_logic_1164.all;
 use IEEE.std_logic_arith.all;
  
 --type motor_type is (stop, accel_up, hold_up, brake_up, accel_down, hold_down, brake_down);
+
+-- note: clock is assumed to have a period of 100 ns, freq = 10 mhz
+-- fast_clock is assumed to have a period of 1 ns, freq = 1 ghz
+-- Not realistic, but look good on the default waveform zoon
  
 entity car_processor is 
 	port ( 
@@ -34,9 +38,6 @@ entity car_processor is
 		direction_down 	: out std_logic);
 end entity;  
 
-
-
-
 architecture behav of car_processor is 
 	type state_type is (idle_state, dir_up_state, dir_down_state, accel_state, 
 		hold_state, brake_state, open_state, close_state);
@@ -54,18 +55,68 @@ architecture behav of car_processor is
 	signal reset_timer 				: std_logic := '0';
 	signal accel, hold, brake 		: std_logic := '0';
 	signal remove_call 				: std_logic := '0';
+	
+	-- timer counter
+	signal timer_counter			: integer := 0;
 
 begin  
 	process (clk, fast_clk, reset)
 	begin  
-		-- -- timers
-		-- if (clk = '1' and clk'event and timer_accel = '0')
-			-- then timer_accel <= '1';
-		-- end if;
-		-- if (clk = '1' and clk'event and timer_door = '0')
-			-- then timer_door <= '1';
-			-- door_closed <= '1';
-		-- end if;
+		-- Datapath Implementation
+		if (clk = '1' and clk'event) then
+		
+			-- From paper: Car Processor Timer
+			timer_counter <= timer_counter + 1;
+			if (reset_timer = '1') then
+				timer_counter <= 0;
+			end if;
+			-- 3 second timer; 10 mhz * 3 seconds = 30000000 cycles
+			if (timer_counter > 30000000) then
+				timer_accel <= '1';
+			else 
+				timer_accel <= '0';
+			end if;
+			-- 8 second timer; 80000000 cycles
+			if (timer_counter > 80000000) then
+				timer_door <= '1';
+			else
+				timer_door <= '0';
+			end if;
+			
+			-- new_call or gate
+			new_call <= (new_landing_call or new_car_call);
+			
+			-- From papers: Direction Registers is redundant in this VHDL
+			
+			-- From papers: Motor Direction Selector
+			if (dir_up = dir_down) then
+				-- if dir_up and dir_down are zero, elevator is not moving, and should brake;
+				-- if dir_up and dir_down are one, that cannot happen
+				motor <= 0;
+			elsif (dir_down = '1') then
+				if (hold = '1') then
+					motor <= 1;
+				elsif (accel = '1') then
+					motor <= 2;
+				elsif (brake = '1') then
+					motor <= 3;
+				else
+					motor <= 0;
+				end if;
+			elsif (dir_up = '1') then
+				if (hold = '1') then
+					motor <= 4;
+				elsif (accel = '1') then
+					motor <= 5;
+				elsif (brake = '1') then
+					motor <= 6;
+				else
+					motor <= 0;
+				end if;
+			end if;
+			
+			
+		end if;
 
 		-- FSM Implementation
 		if (reset = '1') then  
