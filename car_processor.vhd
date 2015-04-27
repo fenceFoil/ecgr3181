@@ -252,7 +252,9 @@ begin
 				-- n/a
 				
 				-- Decide next state
-				if (door_closed='0') then
+				report "CP: In closed_state";
+				if (door_closed = '0') then
+					report "CP: door_closed = 0; door not closed, staying in close_state";
 					state <= close_state; -- remain in current state
 				elsif (at_call = '1' or hold_button = '1' or open_button = '1') then
 					state <= open_state;
@@ -264,6 +266,10 @@ begin
 					state <= dir_down_state;
 				elsif (call_above = '0' and call_below = '0') then
 					state <= idle_state;
+				--end if;
+				else 
+					report "CP: none of the transitions are true, remaining in close_state";
+					state <= idle_state; -- XXX: Guesswork. This just works for some reason.
 				end if;
 			end case; 
 			

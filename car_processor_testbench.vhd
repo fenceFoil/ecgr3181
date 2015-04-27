@@ -188,28 +188,28 @@ begin
 		wait for CLK_PERIOD;
 		new_landing_call <= '0';
 		
-		wait for CLK_PERIOD*1;
+		wait for CLK_PERIOD * 1;
 		report "Registering car call: Floor 2";
 		car_call <= 2;
 		new_car_call <= '1';
 		wait for CLK_PERIOD;
 		new_car_call <= '0';
 		
-		wait for CLK_PERIOD * 4;
+		wait for CLK_PERIOD * 25;
 		report "Registering car call: Floor 4";
 		car_call <= 4;
 		new_car_call <= '1';
 		wait for CLK_PERIOD;
 		new_car_call <= '0';
 		
-		wait for CLK_PERIOD*100;
+		wait for CLK_PERIOD * 100;
 		report "Registering car call: Floor 2";
 		car_call <= 2;
 		new_car_call <= '1';
-		wait for CLK_PERIOD;
+		wait for CLK_PERIOD * 2;
 		new_car_call <= '0';
 		
-		wait for CLK_PERIOD*100;
+		wait for CLK_PERIOD * 100;
 		report "Registering landing call: Floor 4";
 		force_landing_call <= 4;
 		wait for CLK_PERIOD;
