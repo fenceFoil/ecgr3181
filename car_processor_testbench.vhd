@@ -181,28 +181,6 @@ begin
 	begin		
 		-- Setup
 		close_button <= '1';
-		force_landing_call <= 3;
-		report "Step 0: Waiting for 3 clock periods.";
-		wait for CLK_PERIOD * 3;
-		
-		-- Step 1
-		report "Step 1";
-		new_landing_call <= '1';
-		wait for CLK_PERIOD;
-		assert (direction_up = '1')
-			report "Step 1: Direction not yet up."
-			severity note;
-		
-		-- Step 2
-		report "Step 2";
-		new_landing_call <= '0';
-		wait for CLK_PERIOD;
-		assert (direction_up = '1')
-			report "Step 2: Direction not yet up."
-			severity note;
-			
-		-- Setup
-		close_button <= '1';
 		report "Registering landing call: Floor 3";
 		force_landing_call <= 3;
 		wait for CLK_PERIOD;
@@ -217,6 +195,7 @@ begin
 		wait for CLK_PERIOD;
 		new_car_call <= '0';
 		
+		wait for CLK_PERIOD * 4;
 		report "Registering car call: Floor 4";
 		car_call <= 4;
 		new_car_call <= '1';
@@ -229,6 +208,14 @@ begin
 		new_car_call <= '1';
 		wait for CLK_PERIOD;
 		new_car_call <= '0';
+		
+		wait for CLK_PERIOD*100;
+		report "Registering landing call: Floor 4";
+		force_landing_call <= 4;
+		wait for CLK_PERIOD;
+		new_landing_call <= '1';
+		wait for CLK_PERIOD;
+		new_landing_call <= '0';
 	
 		wait;
 	end process;

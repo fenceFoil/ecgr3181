@@ -42,13 +42,6 @@ architecture behav of car_processor is
 
 	signal state : state_type := idle_state; 
 	
-	-- -- direction registers
-	-- signal dir_up, dir_down : std_logic := '0';
-	
-	-- -- state machine inputs not on the external port
-	-- signal near_call, at_call, new_call, call_above, call_below : std_logic := '0';
-	-- signal timer_accel, timer_door : std_logic := '0';
-	
 	-- state machine outputs not on the external port
 	signal reset_timer 				: std_logic := '0';
 --	signal accel, hold, brake 		: std_logic := '0';
