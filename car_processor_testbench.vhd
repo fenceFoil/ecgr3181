@@ -121,9 +121,6 @@ begin
 	begin
 		if (force_landing_call /= 0 and force_landing_call'event) then
 			landing_call <= force_landing_call;
-			new_landing_call <= '1';
-			-- wait for CLK_PERIOD;
-			-- new_landing_call <= '0';
 		end if;
 		
 		if (serviced_call = '1' and serviced_call'event) then
@@ -133,6 +130,7 @@ begin
 	
 	-- Mock: Motor and Position Sensors
 	mock_motor: process (clk)
+		variable motor_lag : integer := 0;
 	begin
 		if (motor'event or (clk'event and clk = '1')) then
 			-- acceleration
@@ -142,12 +140,22 @@ begin
 			end if;
 			-- holding (and floor number change)
 			if (motor = 1) then
-				pos_landing <= pos_landing - 1;
+				motor_lag := motor_lag + 1;
+				if (motor_lag >= 5) then
+					pos_landing <= pos_landing - 1;
+					motor_lag := 0;
+				end if;
+				
 				at_landing <= '0';
 				near_landing <= '1';
 			end if;
 			if (motor = 4) then
-				pos_landing <= pos_landing + 1;
+				motor_lag := motor_lag + 1;
+				if (motor_lag >= 5) then
+					pos_landing <= pos_landing + 1;
+					motor_lag := 0;
+				end if;
+				
 				at_landing <= '0';
 				near_landing <= '1';
 			end if;
@@ -173,10 +181,13 @@ begin
 	begin		
 		-- Setup
 		close_button <= '1';
+		force_landing_call <= 3;
+		report "Step 0: Waiting for 3 clock periods.";
+		wait for CLK_PERIOD * 3;
 		
 		-- Step 1
 		report "Step 1";
-		force_landing_call <= 3;
+		new_landing_call <= '1';
 		wait for CLK_PERIOD;
 		assert (direction_up = '1')
 			report "Step 1: Direction not yet up."
@@ -189,6 +200,35 @@ begin
 		assert (direction_up = '1')
 			report "Step 2: Direction not yet up."
 			severity note;
+			
+		-- Setup
+		close_button <= '1';
+		report "Registering landing call: Floor 3";
+		force_landing_call <= 3;
+		wait for CLK_PERIOD;
+		new_landing_call <= '1';
+		wait for CLK_PERIOD;
+		new_landing_call <= '0';
+		
+		wait for CLK_PERIOD*1;
+		report "Registering car call: Floor 2";
+		car_call <= 2;
+		new_car_call <= '1';
+		wait for CLK_PERIOD;
+		new_car_call <= '0';
+		
+		report "Registering car call: Floor 4";
+		car_call <= 4;
+		new_car_call <= '1';
+		wait for CLK_PERIOD;
+		new_car_call <= '0';
+		
+		wait for CLK_PERIOD*100;
+		report "Registering car call: Floor 2";
+		car_call <= 2;
+		new_car_call <= '1';
+		wait for CLK_PERIOD;
+		new_car_call <= '0';
 	
 		wait;
 	end process;

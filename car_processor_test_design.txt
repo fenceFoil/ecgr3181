@@ -75,9 +75,23 @@ NOT Mocked Inputs and Outputs:
 	Outputs:
 		direction_out
 		curr_landing
-	
+		
+**** Steps: Test 2 (less detailed) ****
 
-**** Steps ****
+Register landing call floor 3
+		* Ensure elevator responds and begins to move
+		
+Register car call floor 2
+
+Register car call floor 3
+
+	* Elevator should service landings 2, 3, 4
+	
+Register landing call floor 2
+
+	* Elevator should service landing 2
+
+**** Steps: Test 1 ****
 
 Clocks will be 100 ns and 1 ns for fast and slow clock.
 Inputs will be given 50 ns leading the slow clock, and outputs will be checked 50 ns lagging the slow clock.

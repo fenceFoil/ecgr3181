@@ -42,16 +42,16 @@ architecture behav of car_processor is
 
 	signal state : state_type := idle_state; 
 	
-	-- direction registers
-	signal dir_up, dir_down : std_logic := '0';
+	-- -- direction registers
+	-- signal dir_up, dir_down : std_logic := '0';
 	
-	-- state machine inputs not on the external port
-	signal near_call, at_call, new_call, call_above, call_below : std_logic := '0';
-	signal timer_accel, timer_door : std_logic := '0';
+	-- -- state machine inputs not on the external port
+	-- signal near_call, at_call, new_call, call_above, call_below : std_logic := '0';
+	-- signal timer_accel, timer_door : std_logic := '0';
 	
 	-- state machine outputs not on the external port
 	signal reset_timer 				: std_logic := '0';
-	signal accel, hold, brake 		: std_logic := '0';
+--	signal accel, hold, brake 		: std_logic := '0';
 	signal remove_call 				: std_logic := '0';
 	
 	-- timer counter
@@ -77,17 +77,26 @@ begin
 	);
 	
 	car_proc: process (clk, fast_clk, reset)
-	begin  	
+		variable near_call : std_logic := '0';
+		variable at_call : std_logic := '0';
+		variable new_call : std_logic := '0';
+		variable call_above : std_logic := '0';
+		variable call_below : std_logic := '0';
+		variable timer_accel : std_logic := '0';
+		variable timer_door : std_logic := '0';
+		variable dir_up : std_logic := '0';
+		variable dir_down : std_logic := '0';
+		
+		variable accel : std_logic := '0';
+		variable hold : std_logic := '0';
+		variable brake : std_logic := '0';
+	begin  		
 		-- Datapath Implementation
 		if (clk = '1' and clk'event) then
 		
 			-- Curr Landing
 			curr_landing <= pos_landing;
 			
-			-- Direction Up and Down
-			direction_up <= dir_up;
-			direction_down <= dir_down;
-		
 			-- From paper: Car Processor Timer
 			timer_counter <= timer_counter + 1;
 			if (reset_timer = '1') then
@@ -96,62 +105,35 @@ begin
 			-- 3 second timer; 10 mhz * 3 seconds = 30000000 cycles
 			--if (timer_counter > 30000000) then
 			if (timer_counter > 3) then
-				timer_accel <= '1';
+				timer_accel := '1';
 			else 
-				timer_accel <= '0';
+				timer_accel := '0';
 			end if;
 			-- 8 second timer; 80000000 cycles
 			--if (timer_counter > 80000000) then
 			if (timer_counter > 8) then
-				timer_door <= '1';
+				timer_door := '1';
 			else
-				timer_door <= '0';
+				timer_door := '0';
 			end if;
 			
 			-- new_call or gate
-			new_call <= (new_landing_call or new_car_call);
+			new_call := (new_landing_call or new_car_call);
 			
 			-- From papers: Direction Registers is redundant in this VHDL
-			
-			-- From papers: Motor Direction Selector
-			if (dir_up = dir_down) then
-				-- if dir_up and dir_down are zero, elevator is not moving, and should brake;
-				-- if dir_up and dir_down are one, that cannot happen
-				motor <= 0;
-			elsif (dir_down = '1') then
-				if (hold = '1') then
-					motor <= 1;
-				elsif (accel = '1') then
-					motor <= 2;
-				elsif (brake = '1') then
-					motor <= 3;
-				else
-					motor <= 0;
-				end if;
-			elsif (dir_up = '1') then
-				if (hold = '1') then
-					motor <= 4;
-				elsif (accel = '1') then
-					motor <= 5;
-				elsif (brake = '1') then
-					motor <= 6;
-				else
-					motor <= 0;
-				end if;
-			end if;
 			
 			-- From papers: Landing Call Logic
 			-- Inputs: ca, cb, cat_pos, at_landing, near_landing, landing_call, remove_call, pos_landing
 			-- Outputs: call_above, call_below, near_call, at_call, serviced_call
 			if ((landing_call > pos_landing and landing_call /= 0) or ca = '1') then
-				call_above <= '1';
+				call_above := '1';
 			else
-				call_above <= '0';
+				call_above := '0';
 			end if;
 			if ((landing_call < pos_landing and landing_call /= 0) or cb = '1') then
-				call_below <= '1';
+				call_below := '1';
 			else
-				call_below <= '0';
+				call_below := '0';
 			end if;
 			if ((landing_call = pos_landing and landing_call /= 0) or cat_pos = '1') then
 				if (remove_call = '1') then
@@ -161,19 +143,19 @@ begin
 				end if;
 				
 				if (at_landing = '1') then
-					at_call <= '1';
+					at_call := '1';
 				else 
-					at_call <= '0';
+					at_call := '0';
 				end if;
 				
 				if (near_landing = '1') then
-					near_call <= '1';
+					near_call := '1';
 				else
-					near_call <= '0';
+					near_call := '0';
 				end if;
 			else
-				near_call <= '0';
-				at_call <= '0';
+				near_call := '0';
+				at_call := '0';
 				serviced_call <= '0';
 			end if;
 		end if;
@@ -184,28 +166,28 @@ begin
 			
 			-- reset FSM outputs to zero
 			open_door <= '0';
-			brake <= '0';
-			hold <= '0';
-			accel <= '0';
+			brake := '0';
+			hold := '0';
+			accel := '0';
 			reset_timer <= '0';
 			remove_call <= '0';
 			
 			-- reset registers on reset
-			dir_up <= '0';
-			dir_down <= '0';
+			dir_up := '0';
+			dir_down := '0';
 		elsif (clk = '1' and clk'event) then  
 			case state is  
 			when idle_state =>
 				-- Thoroughly reset all FSM outputs in this idle state
 				open_door <= '0';
-				brake <= '0';
-				hold <= '0';
-				accel <= '0';
+				brake := '0';
+				hold := '0';
+				accel := '0';
 				reset_timer <= '0';
 				remove_call <= '0';
 				
-				dir_up <= '0';
-				dir_down <= '0';
+				dir_up := '0';
+				dir_down := '0';
 				
 				-- Decide next state
 				if (open_button = '1' or (new_call = '1' and at_call = '1')) then
@@ -216,12 +198,12 @@ begin
 					state <= dir_down_state;
 				end if;
 			when dir_up_state =>
-				dir_up <= '1'; 
+				dir_up := '1'; 
 				reset_timer <= '1';
 				
 				state <= accel_state;
 			when dir_down_state =>
-				dir_down <= '1'; 
+				dir_down := '1'; 
 				reset_timer <= '1';
 				
 				state <= accel_state;
@@ -229,7 +211,7 @@ begin
 				-- Undo signal changes from dir_???_state
 				reset_timer <= '0';
 				-- Set signals for this state
-				accel <= '1';
+				accel := '1';
 				
 				-- Decide next state
 				if (timer_accel = '1') then 
@@ -237,9 +219,9 @@ begin
 				end if;
 			when hold_state =>
 				-- Undo signal changes from accel_state
-				accel <= '0';
+				accel := '0';
 				-- Set signals for this state
-				hold <= '1';
+				hold := '1';
 				
 				-- Decide next state
 				if (near_call = '1') then
@@ -247,9 +229,9 @@ begin
 				end if;
 			when brake_state =>
 				-- Undo signal changes from hold_state
-				hold <= '0';
+				hold := '0';
 				-- Set signals for this state
-				brake <= '1';
+				brake := '1';
 				reset_timer <= '1';
 				
 				-- Decide next state
@@ -258,7 +240,7 @@ begin
 				end if;
 			when open_state =>
 				-- Undo signal changes from idle_state, brake_state, close_state
-				brake <= '0';
+				brake := '0';
 				reset_timer <= '0';
 				-- Set signals for this state
 				open_door <= '1';
@@ -291,7 +273,38 @@ begin
 				elsif (call_above = '0' and call_below = '0') then
 					state <= idle_state;
 				end if;
-			end case;  
+			end case; 
+			
+						-- From papers: Motor Direction Selector
+			if (dir_up = dir_down) then
+				-- if dir_up and dir_down are zero, elevator is not moving, and should brake;
+				-- if dir_up and dir_down are one, that cannot happen
+				motor <= 0;
+			elsif (dir_down = '1') then
+				if (hold = '1') then
+					motor <= 1;
+				elsif (accel = '1') then
+					motor <= 2;
+				elsif (brake = '1') then
+					motor <= 3;
+				else
+					motor <= 0;
+				end if;
+			elsif (dir_up = '1') then
+				if (hold = '1') then
+					motor <= 4;
+				elsif (accel = '1') then
+					motor <= 5;
+				elsif (brake = '1') then
+					motor <= 6;
+				else
+					motor <= 0;
+				end if;
+			end if;
+
+			-- Direction Up and Down
+			direction_up <= dir_up;
+			direction_down <= dir_down;			
 		end if;  
 	end process;  
 end behav;
