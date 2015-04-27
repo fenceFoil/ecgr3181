@@ -27,7 +27,7 @@ architecture behav of car_call_processor is
 	signal call_above_temp, call_below_temp, call_at_pos_temp : std_logic := '0';
 	signal i : integer := 0;
 begin
-	process (clk, reset)
+	car_call_proc: process (clk, reset)
 	begin
 		if (reset = '1') then
 			state <= wait_falling_state;

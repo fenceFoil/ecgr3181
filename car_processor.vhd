@@ -29,10 +29,6 @@ entity car_processor is
 		open_door		: out std_logic;
 		motor			: out integer;
 		serviced_call	: out std_logic;
-		-- on some papers, these two are represented with a 2 bit number. 
-		-- Using two individual bits performs the same function; IDLE = both 0
-		--dir_up_out		: out std_logic; 
-		--dir_down_out	: out std_logic;
 		curr_landing	: out integer;
 		
 		direction_up 	: out std_logic;
@@ -66,7 +62,7 @@ architecture behav of car_processor is
 	
 begin  
 	-- Car Call Processor
-	ccp : entity work.car_call_processor(basic) PORT MAP (
+	ccp : entity work.car_call_processor PORT MAP (
 		car_clk => clk,
 		clk => fast_clk,
 		reset => reset,
@@ -80,10 +76,17 @@ begin
 		call_at_pos => cat_pos
 	);
 	
-	process (clk, fast_clk, reset)
-	begin  
+	car_proc: process (clk, fast_clk, reset)
+	begin  	
 		-- Datapath Implementation
 		if (clk = '1' and clk'event) then
+		
+			-- Curr Landing
+			curr_landing <= pos_landing;
+			
+			-- Direction Up and Down
+			direction_up <= dir_up;
+			direction_down <= dir_down;
 		
 			-- From paper: Car Processor Timer
 			timer_counter <= timer_counter + 1;
@@ -91,13 +94,15 @@ begin
 				timer_counter <= 0;
 			end if;
 			-- 3 second timer; 10 mhz * 3 seconds = 30000000 cycles
-			if (timer_counter > 30000000) then
+			--if (timer_counter > 30000000) then
+			if (timer_counter > 3) then
 				timer_accel <= '1';
 			else 
 				timer_accel <= '0';
 			end if;
 			-- 8 second timer; 80000000 cycles
-			if (timer_counter > 80000000) then
+			--if (timer_counter > 80000000) then
+			if (timer_counter > 8) then
 				timer_door <= '1';
 			else
 				timer_door <= '0';
