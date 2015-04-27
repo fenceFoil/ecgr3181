@@ -30,10 +30,12 @@ Mock Group Traffic Processor:
 			FROM TESTBENCH: force_landing_call (integer)
 		serviced_call (bit)
 	Outputs:
-		landing_call (integer)
 		new_landing_call (bit)
+		landing_call (integer)
 	Behavior:
-		When force_landing_call changes, landing call is set to its value, and new_landing_call is pulsed. When serviced_call is raised, landing_call is set to 0.
+		NOTE: new_landing_call should be lowered manually in the steps of the testbench. Too hard to automate in the mock group traffic controller.
+	
+		When force_landing_call changes, landing call is set to its value, and new_landing_call is raised. When serviced_call is raised, landing_call is set to 0.
 
 Mock Motor and Position Sensors:
 	Inputs:
@@ -65,6 +67,8 @@ NOT Mocked Inputs and Outputs:
 		close_btn (held at 1)
 		open_btn
 		
+		new_landing_call
+		
 		new_car_call
 		car_call
 		
@@ -83,6 +87,7 @@ Start on first floor
 
 ****
 
+					STEP 01
 Register landing call floor 3
 Register car call floor 2
 	* Elevator sets direction up
@@ -105,6 +110,7 @@ Register car call floor 4
 
 * Elevator holds up
 
+					STEP 10
 * Elevator brakes up
 
 * Elevator services landing call
@@ -131,6 +137,7 @@ Register landing call at 2
 
 * Elevator closes doors
 
+					STEP 20
 * Elevator sets directions down
 
 * Elevator accelerates down
