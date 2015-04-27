@@ -66,7 +66,7 @@ begin
 						state <= loop_landings_state;
 						
 					when loop_landings_state =>
-						if (i < NUM_LANDINGS) then
+						if (i <= NUM_LANDINGS) then
 							if (requests(i) = '1') then
 								if (i < pos_landing) then
 									state <= call_below_state;
