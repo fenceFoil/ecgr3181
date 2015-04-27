@@ -44,7 +44,6 @@ architecture behav of car_processor is
 	
 	-- state machine outputs not on the external port
 	signal reset_timer 				: std_logic := '0';
---	signal accel, hold, brake 		: std_logic := '0';
 	signal remove_call 				: std_logic := '0';
 	
 	-- timer counter
