@@ -21,8 +21,8 @@ entity group_controller is
     
 		landing_call_1    : out integer;
 		landing_call_2    : out integer;
-		new_landing_call_1 	: out std_logic; -- Goes high when a call is assigned (bit operation)
-		new_landing_call_2 	: out std_logic; -- Goes high when a call is assigned (bit operation)
+		new_landing_call_1 	: inout std_logic; -- Goes high when a call is assigned (bit operation)
+		new_landing_call_2 	: inout std_logic; -- Goes high when a call is assigned (bit operation)
         
          
          send : out std_logic);
@@ -49,19 +49,26 @@ begin
   begin
     
 if (clk' event and clk = '1') then
+	if (new_landing_call_1 = '1') then
+		new_landing_call_1 <= '0';
+	end if;
+	if (new_landing_call_2 = '1') then
+		new_landing_call_2 <= '0';
+	end if;
+
+	if (call_serviced_1 = '1') then
+		landing_call_1 <= 0;
+		new_landing_call_1 <= '0';
+	elsif (call_serviced_2 = '1') then
+		landing_call_2 <= 0;
+		new_landing_call_1 <= '0';       
+	end if;
+
   if (up_call = '1' or down_call = '1') then
     elevator_1_location <= position_1;
     elevator_2_location <= position_2;
     request_location <= landing_call;
  
-    if (call_serviced_1 = '1') then
-        landing_call_1 <= 0;
-        new_landing_call_1 <= '0';
-    elsif (call_serviced_2 = '1') then
-        landing_call_2 <= 0;
-        new_landing_call_1 <= '0';       
-    end if;
-  
     -- calculate distances
     distance_1 <= request_location - elevator_1_location;
     distance_2 <= request_location - elevator_2_location;
