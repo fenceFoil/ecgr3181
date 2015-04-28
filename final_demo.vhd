@@ -230,6 +230,9 @@ begin
 				motor_lag := motor_lag + 1;
 				if (motor_lag >= 5) then
 					pos_landing_1 <= pos_landing_1 - 1;
+					if (pos_landing_1 < 1) then
+						pos_landing_1 <= 1;
+					end if;
 					motor_lag := 0;
 				end if;
 				
@@ -277,6 +280,9 @@ begin
 				motor_lag := motor_lag + 1;
 				if (motor_lag >= 5) then
 					pos_landing_2 <= pos_landing_2 - 1;
+					if (pos_landing_2 < 1) then
+						pos_landing_2 <= 1;
+					end if;
 					motor_lag := 0;
 				end if;
 				
